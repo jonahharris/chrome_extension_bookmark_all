@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "version": "4",
   "name": "Bookmark All",
   "author": "Andrew Sutherland",
@@ -12,7 +12,10 @@
     "128": "star_icons_128.png",
     "48": "star_icons_48.png"
   },
-  "browser_action": {
+  "background": {
+    "service_worker": "service_worker.js"
+  },
+  "action": {
     "default_icon": {
       "19": "star_icons_19.png",
       "38": "star_icons_38.png"
@@ -20,9 +23,5 @@
     "default_popup": "popup.html",
     "default_title": "Bookmark All"
   },
-  "background": {
-    "scripts": [
-      "background.js"
-    ]
-  }
+  "content_security_policy": {}
 }

@@ -1,25 +1,37 @@
 function toShortISODateString(d) {
-  function pad(n) {
-    return n<10 ? '0'+n : n
-  }
-  return d.getFullYear()+'-'
-    + pad(d.getMonth()+1)+'-'
-    + pad(d.getDate());
+  const pad = (n) => (n < 10 ? "0" + n : n);
+  return (
+    d.getFullYear() +
+    "-" +
+    pad(d.getMonth() + 1) +
+    "-" +
+    pad(d.getDate())
+  );
 }
-$(document).ready(function(){
-  var folderTitle = toShortISODateString(new Date());
-  // Set default value to current date
-  $('#folderName').val(folderTitle);
-  console.log("Set placeholder to " + folderTitle);
-  // Handle button click
-  $('form').submit(function(){
-    // This seems the stupidest way to get the value
-    var folderName = $('#folderName').val();
-    window.close();
-    // Create bookmarks from background page
-    // I couldn't get it to work from here
-    // and there seemed to be a race condition with window.close()
-    chrome.extension.getBackgroundPage().bookmarkAll(folderName);
-    return false;
+
+$(function () {
+  const defaultTitle = toShortISODateString(new Date());
+  $("#folderName").val(defaultTitle);
+  console.log("Default folder name:", defaultTitle);
+
+  $("form").on("submit", function (e) {
+    e.preventDefault();
+
+    const folderTitle = $("#folderName").val().trim() || defaultTitle;
+
+    chrome.runtime.sendMessage(
+      { type: "BOOKMARK_ALL", folderTitle },
+      (res) => {
+        if (chrome.runtime.lastError) {
+          console.error(chrome.runtime.lastError);
+        } else if (!res?.ok) {
+          console.error(res?.error || "Unknown error");
+        } else {
+          console.log(`Bookmarked ${res.count} tabs into folder ${folderTitle}`);
+        }
+        // Close AFTER we get a response to avoid the race
+        window.close();
+      }
+    );
   });
 });
